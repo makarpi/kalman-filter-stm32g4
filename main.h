@@ -61,41 +61,6 @@
 /* Private inlcudes ---------------------------------------------------------*/
 #include "adc.h"
 #include "timer.h"
-#include "Hardware.h"
-
-/* Exported types ------------------------------------------------------------*/
-typedef union
-{
-	float Float;
-	void * Pointer;
-}tu_FloatByte;
-
-typedef enum
-{
-  FALSE = 0,
-  TRUE = !FALSE
-}te_BOOL;
-
-typedef union
-{
-	uint8_t charVal[2];
-	uint16_t Unsgned16bitValue;
-	int16_t signed16bitValue;
-}tu_u8u16;
-
-typedef union
-{
-  double typeDouble;
-  float typeFloat;
-  int typeInt;
-  uint32_t typeU32;
-  int16_t typeS16;
-  uint16_t typeU16;
-  uint8_t typeU8[8];
-}ts_ToU8;
-/* Exported constants --------------------------------------------------------*/
-
-/* ==============   BOARD SPECIFIC CONFIGURATION CODE BEGIN    ============== */
 /**
   * @brief LED2
   */

@@ -6,49 +6,14 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-
-/* Init variable out of expected ADC conversion data range */
-#define VAR_CONVERTED_DATA_INIT_VALUE    (__LL_ADC_DIGITAL_SCALE(LL_ADC_RESOLUTION_12B) + 1)
-
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE BEGIN PV */
-
-__IO uint32_t ubUserButtonPressed = 0UL;
-
-/* Variables for ADC conversion data */
-__IO uint16_t uhADCxConvertedData = VAR_CONVERTED_DATA_INIT_VALUE; /* ADC group regular conversion data */
-
-/* Variables for ADC conversion data computation to physical values */
-__IO uint16_t uhADCxConvertedData_Voltage_mVolt = 0UL;  /* Value of voltage calculated from ADC conversion data (unit: mV) */
-
-/* Variable to report status of ADC group regular unitary conversion          */
-/*  0: ADC group regular unitary conversion is not completed                  */
-/*  1: ADC group regular unitary conversion is completed                      */
-/*  2: ADC group regular unitary conversion has not been started yet          */
-/*     (initial state)                                                        */
-__IO uint8_t ubAdcGrpRegularUnitaryConvStatus = 2U; /* Variable set into ADC interruption callback */
-
-/* USER CODE END PV */
-
 /* Private function prototypes -----------------------------------------------*/
+
 void SystemClock_Config(void);
-/* USER CODE BEGIN PFP */
-void     Activate_ADC(void);
-void     ConversionStartPoll_ADC_GrpRegular(void);
 
 int main(void)
 {
 	Main_HardwareInit();
-	Activate_ADC();
+
 	LL_HRTIM_EnableOutput(HRTIM1, LL_HRTIM_OUTPUT_TD1);
 	LL_HRTIM_TIM_CounterEnable(HRTIM1, LL_HRTIM_TIMER_D);
 
@@ -56,17 +21,6 @@ int main(void)
 	{
 		LL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
 		LL_mDelay(150);
-
-		/* Init variable containing ADC conversion data */
-//		uhADCxConvertedData = VAR_CONVERTED_DATA_INIT_VALUE;
-
-		/* Perform ADC group regular conversion start, poll for conversion        */
-		/* completion.                                                            */
-		ConversionStartPoll_ADC_GrpRegular();
-
-		/* Retrieve ADC conversion data */
-		/* (data scale corresponds to ADC resolution: 12 bits) */
-		uhADCxConvertedData = LL_ADC_REG_ReadConversionData12(ADC1);
 	}
 }
 
