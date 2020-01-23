@@ -1,0 +1,10 @@
+#include "../../../../../../../lib/CMSIS/DSP/DSP_Lib_TestSuite/Common/JTest/inc/jtest_cycle.h"
+
+#include <inttypes.h>
+
+/*--------------------------------------------------------------------------------*/
+/* Define Module Variables */
+/*--------------------------------------------------------------------------------*/
+
+/* const char * JTEST_CYCLE_STRF = "Running: %s\nCycles: %" PRIu32 "\n"; */
+const char * JTEST_CYCLE_STRF = "Cycles: %" PRIu32 "\n"; /* function name + parameter string skipped */
