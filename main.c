@@ -14,8 +14,10 @@ int main(void)
 {
 	Main_HardwareInit();
 
-	LL_HRTIM_EnableOutput(HRTIM1, LL_HRTIM_OUTPUT_TD1);
-	LL_HRTIM_TIM_CounterEnable(HRTIM1, LL_HRTIM_TIMER_D);
+//	LL_HRTIM_EnableOutput(HRTIM1, LL_HRTIM_OUTPUT_TD1);
+//	LL_HRTIM_TIM_CounterEnable(HRTIM1, LL_HRTIM_TIMER_D);
+
+//	Handle_I2C_Master();
 
 	while (1)
 	{
@@ -65,6 +67,9 @@ void Main_HardwareInit(void)
 
 	/* HRTIM initialization function */
 	Timer_Init();
+
+	/* MEMS initialization function */
+	Mems_Init();
 }
 
 /**

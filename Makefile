@@ -62,9 +62,11 @@ lib/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_tim.c \
 lib/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_ucpd.c \
 lib/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_usart.c \
 lib/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_utils.c \
+lib/STMems_Standard_C_drivers/lsm6dso_STdC/driver/lsm6dso_reg.c \
 src/Hardware/system_stm32g4xx.c \
 src/Hardware/ADC_Driver/adc.c \
-src/Hardware/Timer_Driver/timer.c
+src/Hardware/Timer_Driver/timer.c \
+src/Hardware/MEMS_Driver/mems.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -126,7 +128,9 @@ C_INCLUDES =  \
 -Isrc/Hardware \
 -Isrc/Hardware/ADC_Driver \
 -Isrc/Hardware/Timer_Driver \
+-Isrc/Hardware/MEMS_Driver \
 -Ilib/STM32G4xx_HAL_Driver/Inc \
+-Ilib/STMems_Standard_C_drivers/lsm6dso_STdC/driver \
 -Ilib/CMSIS/Device/ST/STM32G4xx/Include \
 -Ilib/CMSIS/Include
 

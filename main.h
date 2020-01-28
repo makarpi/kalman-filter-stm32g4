@@ -61,6 +61,9 @@
 /* Private inlcudes ---------------------------------------------------------*/
 #include "adc.h"
 #include "timer.h"
+#include "mems.h"
+#include "lsm6dso_reg.h"
+
 /**
   * @brief LED2
   */
