@@ -5,6 +5,8 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+static uint8_t whoamI;
+
 /* Private function prototypes -----------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 
@@ -12,17 +14,26 @@ void SystemClock_Config(void);
 
 int main(void)
 {
+	stmdev_ctx_t dev_ctx;
+
+	/*
+	*  Initialize mems driver interface
+	*/
+	dev_ctx.write_reg = LSM6DSO_I2C_Write;
+	dev_ctx.read_reg = LSM6DSO_I2C_Read;
+	dev_ctx.handle = I2C1;
+
 	Main_HardwareInit();
 
-//	LL_HRTIM_EnableOutput(HRTIM1, LL_HRTIM_OUTPUT_TD1);
-//	LL_HRTIM_TIM_CounterEnable(HRTIM1, LL_HRTIM_TIMER_D);
 
-//	Handle_I2C_Master();
+	lsm6dso_device_id_get(&dev_ctx, &whoamI);
+	if (whoamI != LSM6DSO_ID)
+	while(1);
 
 	while (1)
 	{
 		LL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
-		LL_mDelay(150);
+		LL_mDelay(500);
 	}
 }
 
@@ -63,10 +74,10 @@ void Main_HardwareInit(void)
 	LL_GPIO_Init(LED2_GPIO_PORT, &LED2_GPIO_User);
 
 	/* ADC initialization function */
-	ADC_Init();
+//	ADC_Init();
 
 	/* HRTIM initialization function */
-	Timer_Init();
+//	Timer_Init();
 
 	/* MEMS initialization function */
 	Mems_Init();
