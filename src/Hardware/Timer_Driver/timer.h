@@ -9,6 +9,7 @@
 #define SRC_HARDWARE_TIMER_DRIVER_TIMER_H_
 
 void Timer_Init(void);
+void Timer_Timer6_init(void);
 
 
 

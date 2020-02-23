@@ -63,10 +63,12 @@ lib/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_ucpd.c \
 lib/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_usart.c \
 lib/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_utils.c \
 lib/STMems_Standard_C_drivers/lsm6dso_STdC/driver/lsm6dso_reg.c \
+lib/DSP/matrix.c \
 src/Hardware/system_stm32g4xx.c \
 src/Hardware/ADC_Driver/adc.c \
 src/Hardware/Timer_Driver/timer.c \
-src/Hardware/MEMS_Driver/mems.c
+src/Hardware/MEMS_Driver/mems.c \
+src/Hardware/ESP32_Driver/esp32.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -129,10 +131,12 @@ C_INCLUDES =  \
 -Isrc/Hardware/ADC_Driver \
 -Isrc/Hardware/Timer_Driver \
 -Isrc/Hardware/MEMS_Driver \
+-Isrc/Hardware/ESP32_Driver \
 -Ilib/STM32G4xx_HAL_Driver/Inc \
 -Ilib/STMems_Standard_C_drivers/lsm6dso_STdC/driver \
 -Ilib/CMSIS/Device/ST/STM32G4xx/Include \
--Ilib/CMSIS/Include
+-Ilib/CMSIS/Include \
+-Ilib/DSP
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections

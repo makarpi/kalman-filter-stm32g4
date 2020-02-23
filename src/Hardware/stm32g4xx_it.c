@@ -133,6 +133,40 @@ void ADC1_2_IRQHandler(void)
 	Main_AdcInterrupt();
 }
 
+/**
+  * @brief This function handles DMA1 channel6 global interrupt.
+  */
+void DMA1_Channel6_IRQHandler(void)
+{
+  if (LL_DMA_IsActiveFlag_TC6(DMA1))
+  {
+    LL_DMA_ClearFlag_GI6(DMA1);
+  }
+}
+
+/**
+  * @brief This function handles DMA1 channel7 global interrupt.
+  */
+void DMA1_Channel7_IRQHandler(void)
+{
+  if (LL_DMA_IsActiveFlag_TC7(DMA1))
+  {
+	  LL_DMA_ClearFlag_GI7(DMA1);
+  }
+}
+
+void USART1_IRQHandler(void)
+{
+	if(LL_USART_IsActiveFlag_RTO(USART1))
+	{
+		LL_USART_ClearFlag_RTO(USART1);
+//		  LL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
+
+	}
+}
+
+
+
 /******************************************************************************/
 /* STM32G4xx Peripheral Interrupt Handlers                                    */
 /* Add here the Interrupt Handlers for the used peripherals.                  */

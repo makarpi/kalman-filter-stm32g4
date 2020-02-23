@@ -24,11 +24,13 @@ float temperature_degC;
 axis3bit16_t data_raw_acceleration;
 axis3bit16_t data_raw_angular_rate;
 axis1bit16_t data_raw_temperature;
+int rozmiar = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 
 void SystemClock_Config(void);
+volatile uint16_t dma_rx_cnt = 0;
 
 int main(void)
 {
@@ -40,6 +42,9 @@ int main(void)
 	dev_ctx.write_reg = LSM6DSO_I2C_Write;
 	dev_ctx.read_reg = LSM6DSO_I2C_Read;
 	dev_ctx.handle = I2C1;
+
+
+	NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 
 	Main_HardwareInit();
 
@@ -89,7 +94,6 @@ int main(void)
 	lsm6dso_xl_hp_path_on_out_set(&dev_ctx, LSM6DSO_LP_ODR_DIV_100);
 	lsm6dso_xl_filter_lp2_set(&dev_ctx, PROPERTY_ENABLE);
 
-
 	while (1)
 	{
 
@@ -107,7 +111,7 @@ int main(void)
 			acceleration_mg[1] = lsm6dso_from_fs2_to_mg(data_raw_acceleration.i16bit[1]);
 			acceleration_mg[2] = lsm6dso_from_fs2_to_mg(data_raw_acceleration.i16bit[2]);
 
-			LL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
+
 //			LL_mDelay(500);
 		}
 
@@ -137,6 +141,17 @@ int main(void)
 		      lsm6dso_temperature_raw_get(&dev_ctx, data_raw_temperature.u8bit);
 		      temperature_degC = lsm6dso_from_lsb_to_celsius(data_raw_temperature.i16bit);
 		    }
+
+//		    wifi_driver_transmit("Hello World STM32G474\r\n");
+		    StartTransfers();
+//		    if(esp32_TestCommunication())
+//		    {
+//		    	LL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
+//		    }
+
+
+//		    dma_rx_cnt = DMA1_Channel6->CNDTR;
+		    LL_mDelay(10);
 	}
 }
 
@@ -181,9 +196,12 @@ void Main_HardwareInit(void)
 
 	/* HRTIM initialization function */
 //	Timer_Init();
+	Timer_Timer6_init();
 
 	/* MEMS initialization function */
 	Mems_Init();
+
+	esp32_Init();
 }
 
 /**

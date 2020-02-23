@@ -12,18 +12,7 @@
 #define TIMD_DUTY_CYCLE 0.75
 #define LED2_Pin LL_GPIO_PIN_5
 #define LED2_GPIO_Port GPIOA
-#ifndef NVIC_PRIORITYGROUP_0
-#define NVIC_PRIORITYGROUP_0         ((uint32_t)0x00000007) /*!< 0 bit  for pre-emption priority,
-                                                                 4 bits for subpriority */
-#define NVIC_PRIORITYGROUP_1         ((uint32_t)0x00000006) /*!< 1 bit  for pre-emption priority,
-                                                                 3 bits for subpriority */
-#define NVIC_PRIORITYGROUP_2         ((uint32_t)0x00000005) /*!< 2 bits for pre-emption priority,
-                                                                 2 bits for subpriority */
-#define NVIC_PRIORITYGROUP_3         ((uint32_t)0x00000004) /*!< 3 bits for pre-emption priority,
-                                                                 1 bit  for subpriority */
-#define NVIC_PRIORITYGROUP_4         ((uint32_t)0x00000003) /*!< 4 bits for pre-emption priority,
-                                                                 0 bit  for subpriority */
-#endif
+
 
 #define TIMD_PERIOD ((uint16_t)((((uint64_t)HRTIM_INPUT_CLOCK) * 32) / TIMD_PWM_FREQ))
 
@@ -201,3 +190,50 @@ void Timer_Init(void)
 	  LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
 
+void Timer_Timer6_init(void)
+{
+	LL_TIM_InitTypeDef TIM_InitStruct = {0};
+	LL_TIM_OC_InitTypeDef TIM_OC_InitStruct = {0};
+
+
+	/* Peripheral clock enable */
+	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM6);
+
+	/* TIM6 interrupt Init */
+	NVIC_SetPriority(TIM6_DAC_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
+	NVIC_EnableIRQ(TIM6_DAC_IRQn);
+
+	/* USER CODE BEGIN TIM6_Init 1 */
+
+	/* USER CODE END TIM6_Init 1 */
+	TIM_InitStruct.Prescaler = 1000-1;
+	TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
+	TIM_InitStruct.Autoreload = 1000;
+	TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
+	LL_TIM_Init(TIM6, &TIM_InitStruct);
+	LL_TIM_DisableARRPreload(TIM6);
+	LL_TIM_EnableIT_UPDATE(TIM6);
+	//	  TIM_OC_InitStruct.OCMode = LL_TIM_OCMODE_TOGGLE;
+	//	  TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
+	//	  TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
+	//	  TIM_OC_InitStruct.CompareValue = tim_pulse_value;
+	//	  TIM_OC_InitStruct.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
+//	LL_TIM_OC_Init(TIM6, LL_TIM_CHANNEL_CH1, &TIM_OC_InitStruct);
+	LL_TIM_OC_DisableFast(TIM6, LL_TIM_CHANNEL_CH1);
+	LL_TIM_SetOCRefClearInputSource(TIM6, LL_TIM_OCREF_CLR_INT_COMP1);
+	LL_TIM_DisableExternalClock(TIM6);
+	LL_TIM_ConfigETR(TIM6, LL_TIM_ETR_POLARITY_NONINVERTED, LL_TIM_ETR_PRESCALER_DIV1, LL_TIM_ETR_FILTER_FDIV1);
+	LL_TIM_SetTriggerOutput(TIM6, LL_TIM_TRGO_RESET);
+	LL_TIM_DisableMasterSlaveMode(TIM6);
+
+}
+
+void TIM6_DAC_IRQHandler(void)
+{
+	if(LL_TIM_IsActiveFlag_UPDATE(TIM6))
+	{
+		LL_TIM_ClearFlag_UPDATE(TIM6);
+
+	}
+
+}
