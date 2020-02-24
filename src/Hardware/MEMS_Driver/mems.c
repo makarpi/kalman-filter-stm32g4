@@ -8,7 +8,7 @@
 
 #include "main.h"
 
-static void LSM6DSO_Init(void) {
+static void LSM6DSO_Hadrware_Init(void) {
 	LL_I2C_InitTypeDef I2C_InitStruct = { 0 };
 
 	LL_GPIO_InitTypeDef GPIO_InitStruct = { 0 };
@@ -96,7 +96,7 @@ static void LSM6DSO_Init(void) {
 }
 
 void Mems_Init(void) {
-	LSM6DSO_Init();
+	LSM6DSO_Hadrware_Init();
 }
 
 //char pTransmitBuffer[2] = { 0x10, 0xa0 };
@@ -205,3 +205,49 @@ int32_t LSM6DSO_I2C_Read(void *handle, uint8_t reg, uint8_t *bufp, uint16_t len)
 	return 0;
 }
 
+void LSM6DSO_Init(stmdev_ctx_t *ctx)
+{
+	static uint8_t whoamI, rst;
+
+	lsm6dso_device_id_get(&ctx, &whoamI);
+	if (whoamI != LSM6DSO_ID)
+	while(1);
+
+	/*
+	 *  Restore default configuration
+	*/
+	lsm6dso_reset_set(&ctx, PROPERTY_ENABLE);
+	do {
+	lsm6dso_reset_get(&ctx, &rst);
+	} while (rst);
+
+	/*
+	 * Disable I3C interface
+	*/
+	lsm6dso_i3c_disable_set(&ctx, LSM6DSO_I3C_DISABLE);
+
+	/*
+	*  Enable Block Data Update
+	*/
+	lsm6dso_block_data_update_set(&ctx, PROPERTY_ENABLE);
+
+	/*
+	* Set Output Data Rate
+	*/
+	lsm6dso_xl_data_rate_set(&ctx, LSM6DSO_XL_ODR_6667Hz);
+	lsm6dso_gy_data_rate_set(&ctx, LSM6DSO_GY_ODR_6667Hz);
+
+	/*
+	* Set full scale
+	*/
+	lsm6dso_xl_full_scale_set(&ctx, LSM6DSO_2g);
+	lsm6dso_gy_full_scale_set(&ctx, LSM6DSO_2000dps);
+
+	/*
+	* Configure filtering chain(No aux interface)
+	*
+	* Accelerometer - LPF1 + LPF2 path
+	*/
+	lsm6dso_xl_hp_path_on_out_set(&ctx, LSM6DSO_LP_ODR_DIV_100);
+	lsm6dso_xl_filter_lp2_set(&ctx, PROPERTY_ENABLE);
+}

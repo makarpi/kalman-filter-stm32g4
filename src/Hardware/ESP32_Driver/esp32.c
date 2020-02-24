@@ -185,9 +185,9 @@ void wifi_driver_transmit(char *str)
 void StartTransfers(void)
 {
 	esp32_TxBuffer.syncWord = 0xaa;
-	esp32_TxBuffer.kanal[0].real = 0.0f;
-	esp32_TxBuffer.kanal[1].real = -100.0f;
-//	esp32_TxBuffer.channel[2].real = 2.0f;
+	esp32_TxBuffer.channel[0].real = sinf(ro);
+	esp32_TxBuffer.channel[1].real = cosf(ro);;
+//	esp32_TxBuffer.channel[2].real = cosf(ro);;
 //	esp32_TxBuffer.channel[3].real = -3.0f;
 //	esp32_TxBuffer.channel[4].real = 4.0f;
 //	esp32_TxBuffer.channel[5].real = -5.0f;
@@ -196,19 +196,7 @@ void StartTransfers(void)
 //	esp32_TxBuffer.channel[8].real = 8.0f;
 //	esp32_TxBuffer.channel[9].real = -9.0f;
 
-	unia.real = sinf(ro);
-	aStringToSend[1] = unia.byte[0];
-	aStringToSend[2] = unia.byte[1];
-	aStringToSend[3] = unia.byte[2];
-	aStringToSend[4] = unia.byte[3];
-
-	unia.real = cosf(ro);
-	aStringToSend[5] = unia.byte[0];
-	aStringToSend[6] = unia.byte[1];
-	aStringToSend[7] = unia.byte[2];
-	aStringToSend[8] = unia.byte[3];
-
-	ro += D_RO;
+		ro += D_RO;
 
 	if(ro >= 2 * M_PI) ro -= 2 * M_PI;
 

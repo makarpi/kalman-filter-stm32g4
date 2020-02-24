@@ -15,14 +15,18 @@ void StartTransfers(void);
 
 uint8_t esp32_TestCommunication(void);
 
+
 typedef union{
 	uint8_t byte[4];
 	float real;
-}channel;
+}unionChannel;
 
 typedef struct{
 	char syncWord;
-	channel kanal[2];
-}ESP32_CHANNEL_SEND_T;
+	unionChannel channel[2];
+//	char dummy[3];
+} __attribute__((packed)) ESP32_CHANNEL_SEND_T;
+
+extern ESP32_CHANNEL_SEND_T esp32_TxBuffer;
 
 #endif /* SRC_HARDWARE_ESP32_DRIVER_ESP32_H_ */

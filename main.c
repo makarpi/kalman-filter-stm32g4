@@ -17,14 +17,13 @@ typedef union{
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-static uint8_t whoamI, rst;
+
 float acceleration_mg[3];
 float angular_rate_mdps[3];
 float temperature_degC;
 axis3bit16_t data_raw_acceleration;
 axis3bit16_t data_raw_angular_rate;
 axis1bit16_t data_raw_temperature;
-int rozmiar = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -43,56 +42,11 @@ int main(void)
 	dev_ctx.read_reg = LSM6DSO_I2C_Read;
 	dev_ctx.handle = I2C1;
 
-
 	NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 
 	Main_HardwareInit();
 
-
-	/*
-	 *  Check device ID
-	*/
-	lsm6dso_device_id_get(&dev_ctx, &whoamI);
-	if (whoamI != LSM6DSO_ID)
-	while(1);
-
-	/*
-	 *  Restore default configuration
-	*/
-	lsm6dso_reset_set(&dev_ctx, PROPERTY_ENABLE);
-	do {
-	lsm6dso_reset_get(&dev_ctx, &rst);
-	} while (rst);
-
-	/*
-	 * Disable I3C interface
-	*/
-	lsm6dso_i3c_disable_set(&dev_ctx, LSM6DSO_I3C_DISABLE);
-
-	/*
-	*  Enable Block Data Update
-	*/
-	lsm6dso_block_data_update_set(&dev_ctx, PROPERTY_ENABLE);
-
-	/*
-	* Set Output Data Rate
-	*/
-	lsm6dso_xl_data_rate_set(&dev_ctx, LSM6DSO_XL_ODR_6667Hz);
-	lsm6dso_gy_data_rate_set(&dev_ctx, LSM6DSO_GY_ODR_6667Hz);
-
-	/*
-	* Set full scale
-	*/
-	lsm6dso_xl_full_scale_set(&dev_ctx, LSM6DSO_2g);
-	lsm6dso_gy_full_scale_set(&dev_ctx, LSM6DSO_2000dps);
-
-	/*
-	* Configure filtering chain(No aux interface)
-	*
-	* Accelerometer - LPF1 + LPF2 path
-	*/
-	lsm6dso_xl_hp_path_on_out_set(&dev_ctx, LSM6DSO_LP_ODR_DIV_100);
-	lsm6dso_xl_filter_lp2_set(&dev_ctx, PROPERTY_ENABLE);
+//	LSM6DSO_Init(&dev_ctx);
 
 	while (1)
 	{
@@ -102,45 +56,45 @@ int main(void)
 		/*
 		 * Read output only if new xl value is available
 		 */
-		lsm6dso_xl_flag_data_ready_get(&dev_ctx, &reg);
-		if (reg)
-		{
-			memset(data_raw_acceleration.u8bit, 0x00, 3 * sizeof(int16_t));
-			lsm6dso_acceleration_raw_get(&dev_ctx, data_raw_acceleration.u8bit);
-			acceleration_mg[0] = lsm6dso_from_fs2_to_mg(data_raw_acceleration.i16bit[0]);
-			acceleration_mg[1] = lsm6dso_from_fs2_to_mg(data_raw_acceleration.i16bit[1]);
-			acceleration_mg[2] = lsm6dso_from_fs2_to_mg(data_raw_acceleration.i16bit[2]);
-
-
-//			LL_mDelay(500);
-		}
-
-		lsm6dso_gy_flag_data_ready_get(&dev_ctx, &reg);
-		    if (reg)
-		    {
-		      /*
-		       * Read angular rate field data
-		       */
-		      memset(data_raw_angular_rate.u8bit, 0x00, 3 * sizeof(int16_t));
-		      lsm6dso_angular_rate_raw_get(&dev_ctx, data_raw_angular_rate.u8bit);
-		      angular_rate_mdps[0] =
-		    		  lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[0]);
-		      angular_rate_mdps[1] =
-		    		  lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[1]);
-		      angular_rate_mdps[2] =
-		    		  lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[2]);
-		    }
-
-		    lsm6dso_temp_flag_data_ready_get(&dev_ctx, &reg);
-		    if (reg)
-		    {
-		      /*
-		       * Read temperature data
-		       */
-		      memset(data_raw_temperature.u8bit, 0x00, sizeof(int16_t));
-		      lsm6dso_temperature_raw_get(&dev_ctx, data_raw_temperature.u8bit);
-		      temperature_degC = lsm6dso_from_lsb_to_celsius(data_raw_temperature.i16bit);
-		    }
+//		lsm6dso_xl_flag_data_ready_get(&dev_ctx, &reg);
+//		if (reg)
+//		{
+//			memset(data_raw_acceleration.u8bit, 0x00, 3 * sizeof(int16_t));
+//			lsm6dso_acceleration_raw_get(&dev_ctx, data_raw_acceleration.u8bit);
+//			acceleration_mg[0] = lsm6dso_from_fs2_to_mg(data_raw_acceleration.i16bit[0]);
+//			acceleration_mg[1] = lsm6dso_from_fs2_to_mg(data_raw_acceleration.i16bit[1]);
+//			acceleration_mg[2] = lsm6dso_from_fs2_to_mg(data_raw_acceleration.i16bit[2]);
+//
+//
+////			LL_mDelay(500);
+//		}
+//
+//		lsm6dso_gy_flag_data_ready_get(&dev_ctx, &reg);
+//		    if (reg)
+//		    {
+//		      /*
+//		       * Read angular rate field data
+//		       */
+//		      memset(data_raw_angular_rate.u8bit, 0x00, 3 * sizeof(int16_t));
+//		      lsm6dso_angular_rate_raw_get(&dev_ctx, data_raw_angular_rate.u8bit);
+//		      angular_rate_mdps[0] =
+//		    		  lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[0]);
+//		      angular_rate_mdps[1] =
+//		    		  lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[1]);
+//		      angular_rate_mdps[2] =
+//		    		  lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[2]);
+//		    }
+//
+//		    lsm6dso_temp_flag_data_ready_get(&dev_ctx, &reg);
+//		    if (reg)
+//		    {
+//		      /*
+//		       * Read temperature data
+//		       */
+//		      memset(data_raw_temperature.u8bit, 0x00, sizeof(int16_t));
+//		      lsm6dso_temperature_raw_get(&dev_ctx, data_raw_temperature.u8bit);
+//		      temperature_degC = lsm6dso_from_lsb_to_celsius(data_raw_temperature.i16bit);
+//		    }
 
 //		    wifi_driver_transmit("Hello World STM32G474\r\n");
 		    StartTransfers();
