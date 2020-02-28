@@ -119,6 +119,9 @@ void Main_InterruptsPriorityConfiguration(void);
 void Main_EnableInterrupt(void);
 void Main_AdcInterrupt(void);
 
+
+extern stmdev_ctx_t dev_ctx;
+
 #endif /* MAIN_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -201,9 +201,10 @@ void Timer_Timer6_init(void)
 	NVIC_SetPriority(TIM6_DAC_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
 	NVIC_EnableIRQ(TIM6_DAC_IRQn);
 
-	TIM_InitStruct.Prescaler = 17000-1;
+	// 170 MHz / 170 = 1 MHz
+	TIM_InitStruct.Prescaler = 170 - 1;
 	TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
-	TIM_InitStruct.Autoreload = 1000;
+	TIM_InitStruct.Autoreload = 4000;
 	TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
 	LL_TIM_Init(TIM6, &TIM_InitStruct);
 	LL_TIM_DisableARRPreload(TIM6);
@@ -217,5 +218,6 @@ void TIM6_DAC_IRQHandler(void)
 	{
 		LL_TIM_ClearFlag_UPDATE(TIM6);
 		LL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
+		StartTransfers();
 	}
 }

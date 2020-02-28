@@ -13,7 +13,7 @@ uint8_t esp32_RxCyclicBuffer[128];
 
 //float sinus = 0.0f, cosinus = 0.0f;
 float ro = 0.0f;
-#define D_RO 0.06283185307179586476925286766559
+#define D_RO M_PI / 1000.0f
 
 ESP32_CHANNEL_SEND_T esp32_TxBuffer;
 
@@ -182,47 +182,84 @@ void wifi_driver_transmit(char *str)
 	while ((c = *str++)) USART_putc(c);
 }
 
+typedef union{
+  int16_t i16bit[3];
+  uint8_t u8bit[6];
+} axis3bit16_t;
+
+typedef union{
+  int16_t i16bit;
+  uint8_t u8bit[2];
+} axis1bit16_t;
+
+float acceleration_mg[3];
+float angular_rate_mdps[3];
+float temperature_degC;
+axis3bit16_t data_raw_acceleration;
+axis3bit16_t data_raw_angular_rate;
+axis1bit16_t data_raw_temperature;
+
+
 void StartTransfers(void)
 {
+	uint8_t reg;
+
+	lsm6dso_xl_flag_data_ready_get(&dev_ctx, &reg);
+	if (reg)
+	{
+		memset(data_raw_acceleration.u8bit, 0x00, 3 * sizeof(int16_t));
+		lsm6dso_acceleration_raw_get(&dev_ctx, data_raw_acceleration.u8bit);
+		acceleration_mg[0] = lsm6dso_from_fs2_to_mg(data_raw_acceleration.i16bit[0]);
+		acceleration_mg[1] = lsm6dso_from_fs2_to_mg(data_raw_acceleration.i16bit[1]);
+		acceleration_mg[2] = lsm6dso_from_fs2_to_mg(data_raw_acceleration.i16bit[2]);
+	}
+
+	lsm6dso_gy_flag_data_ready_get(&dev_ctx, &reg);
+	if (reg)
+	{
+	  memset(data_raw_angular_rate.u8bit, 0x00, 3 * sizeof(int16_t));
+	  lsm6dso_angular_rate_raw_get(&dev_ctx, data_raw_angular_rate.u8bit);
+	  angular_rate_mdps[0] =
+			  lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[0]);
+	  angular_rate_mdps[1] =
+			  lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[1]);
+	  angular_rate_mdps[2] =
+			  lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[2]);
+	}
+
+	lsm6dso_temp_flag_data_ready_get(&dev_ctx, &reg);
+	if (reg)
+	{
+	  memset(data_raw_temperature.u8bit, 0x00, sizeof(int16_t));
+	  lsm6dso_temperature_raw_get(&dev_ctx, data_raw_temperature.u8bit);
+	  temperature_degC = lsm6dso_from_lsb_to_celsius(data_raw_temperature.i16bit);
+	}
+
 	esp32_TxBuffer.syncWord = 0xaa;
-	esp32_TxBuffer.channel[0].real = sinf(ro);
-	esp32_TxBuffer.channel[1].real = cosf(ro);;
-//	esp32_TxBuffer.channel[2].real = cosf(ro);;
-//	esp32_TxBuffer.channel[3].real = -3.0f;
-//	esp32_TxBuffer.channel[4].real = 4.0f;
-//	esp32_TxBuffer.channel[5].real = -5.0f;
-//	esp32_TxBuffer.channel[6].real = 6.0f;
-//	esp32_TxBuffer.channel[7].real = -7.0f;
-//	esp32_TxBuffer.channel[8].real = 8.0f;
-//	esp32_TxBuffer.channel[9].real = -9.0f;
-
-		ro += D_RO;
-
-	if(ro >= 2 * M_PI) ro -= 2 * M_PI;
+	esp32_TxBuffer.channel[0].real = temperature_degC;
+	esp32_TxBuffer.channel[1].real = angular_rate_mdps[0];
+	esp32_TxBuffer.channel[2].real = angular_rate_mdps[1];
+	esp32_TxBuffer.channel[3].real = angular_rate_mdps[2];
+	esp32_TxBuffer.channel[4].real = acceleration_mg[0];
+	esp32_TxBuffer.channel[5].real = acceleration_mg[1];
+	esp32_TxBuffer.channel[6].real = acceleration_mg[2];
+	esp32_TxBuffer.channel[7].real = 0.0f;
+	esp32_TxBuffer.channel[8].real = 0.0f;
+	esp32_TxBuffer.channel[9].real = 0.0f;
 
 	LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_7);
 
-//	LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_7);
-//	LL_DMA_EnableIT_TE(DMA1, LL_DMA_CHANNEL_7);
 
 	LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_7,
 						 (uint32_t)&esp32_TxBuffer,
 						 LL_USART_DMA_GetRegAddr(USART1, LL_USART_DMA_REG_DATA_TRANSMIT),
 						 LL_DMA_GetDataTransferDirection(DMA1, LL_DMA_CHANNEL_7));
+
 	LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_7, sizeof(esp32_TxBuffer));
 
 	LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_7);
-  /* Enable DMA RX Interrupt */
-//  LL_USART_EnableDMAReq_RX(USART1);
 
-  /* Enable DMA TX Interrupt */
-  LL_USART_EnableDMAReq_TX(USART1);
-
-  /* Enable DMA Channel Rx */
-//  LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_6);
-
-  /* Enable DMA Channel Tx */
-//  LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_7);
+	LL_USART_EnableDMAReq_TX(USART1);
 }
 
 uint8_t esp32_TestCommunication(void)

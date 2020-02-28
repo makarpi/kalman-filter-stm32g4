@@ -15,6 +15,7 @@ void StartTransfers(void);
 
 uint8_t esp32_TestCommunication(void);
 
+#define ESP32_TX_CHANNEL 10
 
 typedef union{
 	uint8_t byte[4];
@@ -23,8 +24,7 @@ typedef union{
 
 typedef struct{
 	char syncWord;
-	unionChannel channel[2];
-//	char dummy[3];
+	unionChannel channel[ESP32_TX_CHANNEL];
 } __attribute__((packed)) ESP32_CHANNEL_SEND_T;
 
 extern ESP32_CHANNEL_SEND_T esp32_TxBuffer;

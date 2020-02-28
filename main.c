@@ -4,37 +4,22 @@
 #include <string.h>
 
 /* Private typedef -----------------------------------------------------------*/
-typedef union{
-  int16_t i16bit[3];
-  uint8_t u8bit[6];
-} axis3bit16_t;
 
-typedef union{
-  int16_t i16bit;
-  uint8_t u8bit[2];
-} axis1bit16_t;
 
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 
-float acceleration_mg[3];
-float angular_rate_mdps[3];
-float temperature_degC;
-axis3bit16_t data_raw_acceleration;
-axis3bit16_t data_raw_angular_rate;
-axis1bit16_t data_raw_temperature;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 
 void SystemClock_Config(void);
-volatile uint16_t dma_rx_cnt = 0;
+
+stmdev_ctx_t dev_ctx;
 
 int main(void)
 {
-	stmdev_ctx_t dev_ctx;
-
 	/*
 	*  Initialize mems driver interface
 	*/
@@ -46,66 +31,13 @@ int main(void)
 
 	Main_HardwareInit();
 
-//	LSM6DSO_Init(&dev_ctx);
+	LSM6DSO_Init(&dev_ctx);
+
+	Timer_Timer6_init();
 
 	while (1)
 	{
 
-		uint8_t reg;
-
-		/*
-		 * Read output only if new xl value is available
-		 */
-//		lsm6dso_xl_flag_data_ready_get(&dev_ctx, &reg);
-//		if (reg)
-//		{
-//			memset(data_raw_acceleration.u8bit, 0x00, 3 * sizeof(int16_t));
-//			lsm6dso_acceleration_raw_get(&dev_ctx, data_raw_acceleration.u8bit);
-//			acceleration_mg[0] = lsm6dso_from_fs2_to_mg(data_raw_acceleration.i16bit[0]);
-//			acceleration_mg[1] = lsm6dso_from_fs2_to_mg(data_raw_acceleration.i16bit[1]);
-//			acceleration_mg[2] = lsm6dso_from_fs2_to_mg(data_raw_acceleration.i16bit[2]);
-//
-//
-////			LL_mDelay(500);
-//		}
-//
-//		lsm6dso_gy_flag_data_ready_get(&dev_ctx, &reg);
-//		    if (reg)
-//		    {
-//		      /*
-//		       * Read angular rate field data
-//		       */
-//		      memset(data_raw_angular_rate.u8bit, 0x00, 3 * sizeof(int16_t));
-//		      lsm6dso_angular_rate_raw_get(&dev_ctx, data_raw_angular_rate.u8bit);
-//		      angular_rate_mdps[0] =
-//		    		  lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[0]);
-//		      angular_rate_mdps[1] =
-//		    		  lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[1]);
-//		      angular_rate_mdps[2] =
-//		    		  lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[2]);
-//		    }
-//
-//		    lsm6dso_temp_flag_data_ready_get(&dev_ctx, &reg);
-//		    if (reg)
-//		    {
-//		      /*
-//		       * Read temperature data
-//		       */
-//		      memset(data_raw_temperature.u8bit, 0x00, sizeof(int16_t));
-//		      lsm6dso_temperature_raw_get(&dev_ctx, data_raw_temperature.u8bit);
-//		      temperature_degC = lsm6dso_from_lsb_to_celsius(data_raw_temperature.i16bit);
-//		    }
-
-//		    wifi_driver_transmit("Hello World STM32G474\r\n");
-		    StartTransfers();
-//		    if(esp32_TestCommunication())
-//		    {
-//		    	LL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
-//		    }
-
-
-//		    dma_rx_cnt = DMA1_Channel6->CNDTR;
-		    LL_mDelay(10);
 	}
 }
 
@@ -150,7 +82,7 @@ void Main_HardwareInit(void)
 
 	/* HRTIM initialization function */
 //	Timer_Init();
-	Timer_Timer6_init();
+//	Timer_Timer6_init();
 
 	/* MEMS initialization function */
 	Mems_Init();
